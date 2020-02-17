@@ -1,0 +1,30 @@
+{
+    "name": "QUOTE-WIDGET",
+    "version": "1.1.0",
+    "main": "main.js",
+    "devDependencies": {
+        "electron": "^7.1.10",
+        "electron-builder": "^22.3.2"
+    },
+    "author": "Subhashish Singh",
+    "description": "QuoteWidget",
+    "scripts": {
+        "start": "electron .",
+        "build": "electron-builder build  --win --publish never",
+        "deploy": "electron-builder build  --win --publish always"
+    },
+    "build": {
+        "appId": "com.example.ElectronAutoUpdate"
+    },
+    "repository": {
+        "type": "github",
+        "url": "https://github.com/subh261096/quoteWidget.git"
+    },
+    "dependencies": {
+        "electron-log": "^4.0.6",
+        "electron-updater": "^4.2.0",
+        "request": "^2.88.0",
+        "require": "^2.4.20",
+        "update-electron-app": "^1.5.0"
+    }
+}
