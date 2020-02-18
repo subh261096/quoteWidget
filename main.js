@@ -12,6 +12,7 @@ const path = require("path"); //for accessing the local path of OS
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
+log.transports.console.format = '{h}:{i}:{s} {text}';
 
 
 
@@ -35,47 +36,69 @@ function createWindow() {
 
     //Setting the Widget on bottom-right corner
     mainWin.setPosition(900, 0);
-
+    log.info("Loading HTML File")
     mainWin.loadFile('src/index.html');
 
     //show window after the loading of HTML complete
-    mainWin.once("ready-to-show", () => {
+    ipcMain.on("show-window", (event, args) => {
+        log.info('ready to show function');
         mainWin.show();
-        autoUpdater.checkForUpdatesAndNotify();
     });
 
 
     //when exit or close button pressed
     mainWin.on("closed", () => {
+        log.info('Closing main window..');
         mainWin = null;
     });
 }
 
+//setting autoStart
+app.setLoginItemSettings({
+    openAtLogin: true,
+    openAsHidden: true,
+    path: app.getPath("exe")
+})
 
-app.on("ready", () => {
-    log.info('App starting...');
-    createWindow();
-});
+// single instance Lock
+const lock = app.requestSingleInstanceLock()
 
-// for Darwin OS
-app.on("window-all-closed", () => {
-        if (process.platform !== 'darwin') {
-            app.quit();
+if (!lock) { app.quit() } else {
+    app.on("ready", () => {
+        log.info('App starting...');
+        log.info('Creating Window');
+        createWindow();
+        setInterval(_ => {
+            log.info("Checking for Update every 5 min !")
+            autoUpdater.checkForUpdatesAndNotify();
+        }, 50000)
+    });
+
+    // for Darwin OS
+    app.on("window-all-closed", () => {
+            log.info('Closing all Windows');
+            if (process.platform !== 'darwin') {
+                app.quit();
+            }
+        })
+        // for MAC OS
+    app.on('activate', () => {
+        log.info('Activating Window for MacOS');
+        if (win === null) {
+            createWindow();
         }
     })
-    // for MAC OS
-app.on('activate', () => {
-    if (win === null) {
-        createWindow();
-    }
-})
-autoUpdater.on('update-available', () => {
-    mainWin.webContents.send('update_available');
-});
-autoUpdater.on('update-downloaded', () => {
-    mainWin.webContents.send('update_downloaded');
-});
+    autoUpdater.on('update-available', () => {
+        log.info('updates Available')
+        mainWin.webContents.send('update_available');
+    });
+    autoUpdater.on('update-downloaded', () => {
+        log.info('updates downloaded');
+        mainWin.webContents.send('update_downloaded');
+    });
 
-ipcMain.on('restart_app', () => {
-    autoUpdater.quitAndInstall();
-});
+    ipcMain.on('restart_app', () => {
+        log.info('Quiting and installing!!');
+        autoUpdater.quitAndInstall();
+    });
+}
