@@ -9,10 +9,10 @@ const { ipcMain, app, BrowserWindow } = electron; //app and browserwindow method
 const { autoUpdater } = require('electron-updater');
 const log = require("electron-log");
 const path = require("path"); //for accessing the local path of OS
-
+log.transports.console.format = '{h}:{i}:{s} {text}';
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
-log.transports.console.format = '{h}:{i}:{s} {text}';
+
 
 
 
